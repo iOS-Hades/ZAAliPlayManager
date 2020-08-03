@@ -34,7 +34,6 @@
         // 初始化播放器
         self.playerView = [[AlivcLongVideoPlayView alloc] initWithFrame:frame];
         self.playerView.delegate = self;
-        self.playerView.previewView.delegate = self;
         // 播放器默认设置
         AlivcVideoPlayPlayerConfig *config = [AlivcVideoPlayPlayerConfig new];
         config.sourceType = SourceTypeNull;
@@ -232,25 +231,24 @@
 //TODO: 全屏事件代理
 - (void)aliyunVodPlayerView:(AlivcLongVideoPlayView *)playerView fullScreen:(BOOL)isFullScreen {
     NSLog(@"isFullScreen : %d, [AliyunUtil isInterfaceOrientationPortrait] = %d",isFullScreen, [AliyunUtil isInterfaceOrientationPortrait]);
+    NSLog(@"点击了全屏按钮，本视图：%@，父视图：%@",playerView, playerView.superview);
     static CGRect rect;
-    static UIView *oldView;
+//    static UIView *oldView;
     if ([AliyunUtil isInterfaceOrientationPortrait] && isFullScreen) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             rect = playerView.frame;
-            oldView = playerView.superview;
-            UIWindow *window = [UIApplication sharedApplication].keyWindow;
-            [playerView removeFromSuperview];
-            [window addSubview:playerView];
+//            oldView = playerView.superview;
+//            UIWindow *window = [UIApplication sharedApplication].keyWindow;
+//            [playerView removeFromSuperview];
+//            [window addSubview:playerView];
             playerView.frame = [UIScreen mainScreen].bounds;
         });
-    }else if (oldView) {
+    }else if (![AliyunUtil isInterfaceOrientationPortrait] && !isFullScreen) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [playerView removeFromSuperview];
-            [oldView addSubview:playerView];
+//            [playerView removeFromSuperview];
+//            [oldView addSubview:playerView];
             self.playerView.frame = rect;
         });
-    }else{
-        
     }
 }
 
@@ -602,6 +600,18 @@
         [AVPTool hideLoadingHudForView:self.playerView.superview];
         [AVPTool hudWithText:errorMsg view:self.playerView.superview];
     }];
+}
+
+#pragma mark ---------------------------- 新接口 0.1.3.1版本 -----------------------------------
+/// 新的初始化方法
+/// @param frame 视频播放器的坐标
+/// @param baseUrl 视频播放器的域名
+/// @param path 视频播放器的扩展地址
+- (instancetype)initWithFrame:(CGRect)frame withBaseUrl:(NSString *)baseUrl withPath:(NSString *)path {
+    AlivcPlayVideoRequestManager *request = [AlivcPlayVideoRequestManager shared];
+    request.BASE_URL = baseUrl;
+    request.URL_PATH = path;
+    return [self initWithFrame:frame];
 }
 
 @end

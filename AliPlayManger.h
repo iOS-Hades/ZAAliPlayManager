@@ -45,9 +45,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param frame 播放器视图坐标
 - (instancetype)initWithFrame:(CGRect)frame;
 
-/// 获取播放视图
-- (UIView *)getPlayView;
-
 /// 设置播放列表
 /// @param VidArray 播放列表数组，里面转载的是 videoid
 - (void)setPlayListsWithVideoIdsArray:(NSArray <NSString *>*)VidArray;
@@ -167,6 +164,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark ---------------------------- 获取playauth -------------------------
 - (void)getVideoPlayAuthInfoWithVideoId:(NSString *)vid block:(void(^)(NSString *playAuth))block;
+
+
+#pragma mark ---------------------------- 新接口 0.1.3.1版本 -----------------------------------
+/// 新的初始化方法
+/// @param frame 视频播放器的坐标
+/// @param baseUrl 视频播放器的域名
+/// @param path 视频播放器的扩展地址
+- (instancetype)initWithFrame:(CGRect)frame withBaseUrl:(NSString *)baseUrl withPath:(NSString *)path;
+/// 获取播放视图
+- (UIView *)getPlayView;
 
 @end
 
