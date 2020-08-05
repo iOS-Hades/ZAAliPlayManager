@@ -19,6 +19,32 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSUInteger, PlayStatus) {
+    /// 正在播放
+    PlayStatusPlaying,
+    /// 暂停播放
+    PlayStatusPause,
+    /// 未播放
+    PlayStatusNoPlay,
+    /// 播放出错
+    PlayStatusPlayError,
+};
+
+typedef NS_ENUM(NSUInteger, DownloadStatus) {
+    /// 停止
+    DownloadStatusStop,
+    /// 等待
+    DownloadStatusWaiting,
+    /// 下载中
+    DownloadStatusLoading,
+    /// 下载完成
+    DownloadStatusFinish,
+    /// 准备完成
+    DownloadStatusPrepared,
+    /// 下载失败
+    DownloadStatusFailed,
+};
+
 /// 播放器管理
 @interface AliPlayManger : NSObject<AliyunVodPlayerViewDelegate, AlivcLongVideoDownLoadProgressManagerDelegate, AlivcLongVideoDefinitionSelectViewDelegate>
 
@@ -174,6 +200,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame withBaseUrl:(NSString *)baseUrl withPath:(NSString *)path;
 /// 获取播放视图
 - (UIView *)getPlayView;
+
+#pragma mark -------------------------- 新接口 0.1.3.2版本 2020-08-05 ----------------------------
+/// 播放状态更新
+@property (nonatomic, copy) void(^playStatusBlock)(PlayStatus status, AlivcLongVideoPlayView *playV);
+/// 当前播放状态
+@property (nonatomic, assign) PlayStatus currentPlayStatus;
+
+/// 下载状态更新
+@property (nonatomic, copy) void(^downLoadStatusBlock)(DownloadStatus status, AlivcLongVideoDownLoadManager *downloadMan);
+/// 当前下载状态
+@property (nonatomic, assign) DownloadStatus currentDownloadStatus;
+/// 下载进度回调
+@property (nonatomic, copy) void(^downloadProgressBlock)(int progress, AlivcLongVideoDownLoadProgressManager *progressMan);
 
 @end
 

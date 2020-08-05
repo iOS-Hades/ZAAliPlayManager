@@ -30,10 +30,18 @@
         self.downLoadProgressManager.delegate = self;
         self.downLoadManager = [AlivcLongVideoDownLoadManager shareManager];
         self.downLoadManager.delegate = self.downLoadProgressManager;
+        self.currentDownloadStatus = DownloadStatusStop;
+        if (self.downLoadStatusBlock) {
+            self.downLoadStatusBlock(DownloadStatusStop, self.downLoadManager);
+        }
         
         // 初始化播放器
         self.playerView = [[AlivcLongVideoPlayView alloc] initWithFrame:frame];
         self.playerView.delegate = self;
+        self.currentPlayStatus = PlayStatusNoPlay;
+        if (self.playStatusBlock) {
+            self.playStatusBlock(PlayStatusNoPlay, self.playerView);
+        }
         // 播放器默认设置
         AlivcVideoPlayPlayerConfig *config = [AlivcVideoPlayPlayerConfig new];
         config.sourceType = SourceTypeNull;
@@ -86,9 +94,17 @@
             }
             weakSelf.playerView.authSource = source;
             [weakSelf.playerView playViewPrepareWithVid:vid playAuth:source.playAuth];
+            weakSelf.currentPlayStatus = PlayStatusPlaying;
+            if (weakSelf.playStatusBlock) {
+                weakSelf.playStatusBlock(PlayStatusPlaying, weakSelf.playerView);
+            }
         }];
     }else{
         [self.playerView start];
+        self.currentPlayStatus = PlayStatusPlaying;
+        if (self.playStatusBlock) {
+            self.playStatusBlock(PlayStatusPlaying, self.playerView);
+        }
     }
 }
 
@@ -97,8 +113,16 @@
 /// @param auth 鉴权
 - (void)playerWithVid:(NSString *)vid playAuth:(NSString *)auth {
     [self.playerView stop];
+    self.currentPlayStatus = PlayStatusNoPlay;
+    if (self.playStatusBlock) {
+        self.playStatusBlock(PlayStatusNoPlay, self.playerView);
+    }
     [self.playerView seekTo:0];
     [self.playerView playViewPrepareWithVid:vid playAuth:auth];
+    self.currentPlayStatus = PlayStatusPlaying;
+    if (self.playStatusBlock) {
+        self.playStatusBlock(PlayStatusPlaying, self.playerView);
+    }
 }
 
 /// playAuth鉴权播放播放
@@ -106,9 +130,15 @@
 - (void)playerWithVid:(NSString *)vid {
     __weak typeof(self) weakSelf = self;
     [self getVideoPlayAuthInfoWithVideoId:vid block:^(NSString * _Nonnull playAuth) {
-        [self.playerView stop];
-        [self.playerView seekTo:0];
+        [weakSelf.playerView stop];
+        weakSelf.currentPlayStatus = PlayStatusNoPlay;
+        weakSelf.playStatusBlock(PlayStatusNoPlay, self.playerView);
+        [weakSelf.playerView seekTo:0];
         [weakSelf playerWithVid:vid playAuth:playAuth];
+        weakSelf.currentPlayStatus = PlayStatusPlaying;
+        if (weakSelf.playStatusBlock) {
+            weakSelf.playStatusBlock(PlayStatusPlaying, weakSelf.playerView);
+        }
     }];
 }
 
@@ -132,6 +162,10 @@
                     }
                     weakSelf.playerView.authSource = source;
                     [weakSelf.playerView playViewPrepareWithVid:vid playAuth:source.playAuth];
+                    weakSelf.currentPlayStatus = PlayStatusPlaying;
+                    if (weakSelf.playStatusBlock) {
+                        weakSelf.playStatusBlock(PlayStatusPlaying, weakSelf.playerView);
+                    }
                 }];
             }
             break;
@@ -150,40 +184,19 @@
         }
         weakSelf.playerView.authSource = source;
         [weakSelf.playerView playViewPrepareWithVid:vid playAuth:source.playAuth];
+        weakSelf.currentPlayStatus = PlayStatusPlaying;
+        if (weakSelf.playStatusBlock) {
+            weakSelf.playStatusBlock(PlayStatusPlaying, weakSelf.playerView);
+        }
     }];
 }
 
 //TODO: 播放完成
 - (void)onFinishWithAliyunVodPlayerView:(AlivcLongVideoPlayView *)playerView {
-    // 设置自动播放
-//    if (!self.finishView) {
-//        if (!self.finishView) {
-//            self.finishView = [AliyunPlayerFinishView new];
-//            __weak typeof(self) weakSelf = self;
-//            __block AliyunPlayerFinishView *vi = self.finishView;
-//            self.finishView.block = ^(NSString * _Nonnull senderName) {
-//                if ([senderName isEqualToString:@"rePlayButton"]) {
-//                    [weakSelf.playerView seekTo:0];
-//                    [weakSelf.playerView start];
-//                }else if ([senderName isEqualToString:@"nextPlayButton"]) {
-//                    [weakSelf moveToNext];
-//                }
-//                [vi removeFromSuperview];
-//            };
-//        }
-//    }else{
-//        if (self.finishView.superview) {
-//            [self.finishView removeFromSuperview];
-//        }
-//    }
-//
-//    [playerView addSubview:self.finishView];
-//    self.finishView.translatesAutoresizingMaskIntoConstraints = false;
-//    [self.finishView.centerYAnchor constraintEqualToAnchor:playerView.centerYAnchor].active = true;
-//    [self.finishView.centerXAnchor constraintEqualToAnchor:playerView.centerXAnchor].active = true;
-//    [self.finishView.widthAnchor constraintEqualToConstant:300].active = true;
-//    [self.finishView.heightAnchor constraintEqualToConstant:30].active = true;
-    
+    self.currentPlayStatus = PlayStatusNoPlay;
+    if (self.playStatusBlock) {
+        self.playStatusBlock(PlayStatusNoPlay, self.playerView);
+    }
     NSLog(@"onFinishWithAliyunVodPlayerView");
 }
 
@@ -191,6 +204,10 @@
 - (void)rePlay {
     [self.playerView seekTo:0];
     [self.playerView start];
+    self.currentPlayStatus = PlayStatusPlaying;
+    if (self.playStatusBlock) {
+        self.playStatusBlock(PlayStatusPlaying, self.playerView);
+    }
 }
 
 /**
@@ -204,11 +221,19 @@
 // TODO: 继续播放
 - (void)aliyunVodPlayerView:(AlivcLongVideoPlayView *)playerView onResume:(NSTimeInterval)currentPlayTime {
     NSLog(@"onResume");
+    self.currentPlayStatus = PlayStatusPlaying;
+    if (self.playStatusBlock) {
+        self.playStatusBlock(PlayStatusPlaying, self.playerView);
+    }
 }
 
 // TODO: 暂停播放
 - (void)aliyunVodPlayerView:(AlivcLongVideoPlayView *)playerView onPause:(NSTimeInterval)currentPlayTime {
     NSLog(@"onPause");
+    self.currentPlayStatus = PlayStatusPause;
+    if (self.playStatusBlock) {
+        self.playStatusBlock(PlayStatusPause, self.playerView);
+    }
 }
 
 // TODO: 拖动进度条结束事件
@@ -264,11 +289,19 @@
 /// 开始播放
 - (void)start {
     [self.playerView start];
+    self.currentPlayStatus = PlayStatusPlaying;
+    if (self.playStatusBlock) {
+        self.playStatusBlock(PlayStatusPlaying, self.playerView);
+    }
 }
 
 /// 停止播放
 - (void)stop {
     [self.playerView stop];
+    self.currentPlayStatus = PlayStatusPause;
+    if (self.playStatusBlock) {
+        self.playStatusBlock(PlayStatusPause, self.playerView);
+    }
 }
 
 /**
@@ -276,12 +309,20 @@
  */
 - (void)reload {
     [self.playerView reload];
+    self.currentPlayStatus = PlayStatusPlaying;
+    if (self.playStatusBlock) {
+        self.playStatusBlock(PlayStatusPlaying, self.playerView);
+    }
 }
 /**
  功能：暂停播放视频
  */
 - (void)pause {
     [self.playerView pause];
+    self.currentPlayStatus = PlayStatusPause;
+    if (self.playStatusBlock) {
+        self.playStatusBlock(PlayStatusPause, self.playerView);
+    }
 }
 
 /**
@@ -289,18 +330,27 @@
  */
 - (void)resume {
     [self.playerView resume];
+    self.currentPlayStatus = PlayStatusPlaying;
+    if (self.playStatusBlock) {
+        self.playStatusBlock(PlayStatusPlaying, self.playerView);
+    }
 }
 /**
  功能：seek到某个时间播放视频
  */
 - (void)seekTo:(NSTimeInterval)seekTime {
     [self.playerView seekTo:seekTime];
+    [self.playerView start];
 }
 
 /**
  功能：释放播放器
  */
 - (void)releasePlayer {
+    self.currentPlayStatus = PlayStatusNoPlay;
+    if (self.playStatusBlock) {
+        self.playStatusBlock(PlayStatusNoPlay, self.playerView);
+    }
     [self.playerView releasePlayer];
 }
 
@@ -330,6 +380,10 @@
             [self.playerView playViewPrepareWithLocalURL:[NSURL fileURLWithPath:path]];
         }else{
             [self.playerView playViewPrepareWithLocalURL:[NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@",self.downLoadManager.downLoadPath,path]]];
+        }
+        self.currentPlayStatus = PlayStatusPlaying;
+        if (self.playStatusBlock) {
+            self.playStatusBlock(PlayStatusPlaying, self.playerView);
         }
     });
 }
@@ -447,6 +501,9 @@
 
 - (void)alivcLongVideoDownLoadProgressManagerOnProgress:(AlivcLongVideoDownloadSource *)source percent:(int)percent {
     NSLog(@"下载进度：%d",percent);
+    if (self.downloadProgressBlock) {
+        self.downloadProgressBlock(percent, self.downLoadProgressManager);
+    }
 }
 
 - (void)alivcLongVideoDownLoadProgressManagerComplete:(AlivcLongVideoDownloadSource *)source {
@@ -455,6 +512,43 @@
 
 - (void)alivcLongVideoDownLoadProgressManagerStateChanged:(AlivcLongVideoDownloadSource *)source {
     NSLog(@"下载状态改变");
+    if (source.downloadStatus == LongVideoDownloadTypeStoped) {
+        // 停止
+        self.currentDownloadStatus = DownloadStatusStop;
+        if (self.downLoadStatusBlock) {
+            self.downLoadStatusBlock(DownloadStatusStop, self.downLoadManager);
+        }
+    }else if (source.downloadStatus == LongVideoDownloadTypeWaiting) {
+        // 等待
+        self.currentDownloadStatus = DownloadStatusWaiting;
+        if (self.downLoadStatusBlock) {
+            self.downLoadStatusBlock(DownloadStatusWaiting, self.downLoadManager);
+        }
+    }else if (source.downloadStatus == LongVideoDownloadTypeLoading) {
+        // 下载中
+        self.currentDownloadStatus = DownloadStatusLoading;
+        if (self.downLoadStatusBlock) {
+            self.downLoadStatusBlock(DownloadStatusLoading, self.downLoadManager);
+        }
+    }else if (source.downloadStatus == LongVideoDownloadTypefinish) {
+        // 下载完成
+        self.currentDownloadStatus = DownloadStatusFinish;
+        if (self.downLoadStatusBlock) {
+            self.downLoadStatusBlock(DownloadStatusFinish, self.downLoadManager);
+        }
+    }else if (source.downloadStatus == LongVideoDownloadTypePrepared) {
+        // 正在准备下载
+        self.currentDownloadStatus = DownloadStatusPrepared;
+        if (self.downLoadStatusBlock) {
+            self.downLoadStatusBlock(DownloadStatusPrepared, self.downLoadManager);
+        }
+    }else if (source.downloadStatus == LongVideoDownloadTypeFailed) {
+        // 下载失败
+        self.currentDownloadStatus = DownloadStatusFailed;
+        if (self.downLoadStatusBlock) {
+            self.downLoadStatusBlock(DownloadStatusFailed, self.downLoadManager);
+        }
+    }
 }
 
 #pragma mark 下载清晰度选择视图代理AlivcLongVideoDefinitionSelectViewDelegate
