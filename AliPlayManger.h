@@ -214,6 +214,17 @@ typedef NS_ENUM(NSUInteger, DownloadStatus) {
 /// 下载进度回调
 @property (nonatomic, copy) void(^downloadProgressBlock)(int progress, AlivcLongVideoDownLoadProgressManager *progressMan);
 
+/// 更新playAuth
+/// @param vid 视频ID
+/// @param block 回调
+- (void)UpdateVideoPlayAuthInfoWithVideoId:(NSString *)vid block:(void(^)(NSString *playAuth))block;
+/// 更新playAuth后直接播放
+/// @param vid 视频ID
+/// @param block 回调
+- (void)UpdateVideoPlayAuthAndPlayingWithVideoId:(NSString *)vid block:(void(^)(NSString *playAuth))block;
+/// 是否是全屏的状态值回调
+@property (nonatomic, copy) void(^interfaceOrientationChangeBlock)(BOOL isFullScreen);
+
 @end
 
 NS_ASSUME_NONNULL_END

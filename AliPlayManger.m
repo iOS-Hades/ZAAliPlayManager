@@ -112,6 +112,14 @@
 /// @param vid 视频ID
 /// @param auth 鉴权
 - (void)playerWithVid:(NSString *)vid playAuth:(NSString *)auth {
+    if (!vid || vid.length == 0) {
+        [MBProgressHUD showMessage:@"视频ID不能为空！" inView:self.playerView.superview];
+        return;
+    }
+    if (!auth || auth.length == 0) {
+        [MBProgressHUD showMessage:@"playAuth不能为空！" inView:self.playerView.superview];
+        return;
+    }
     [self.playerView stop];
     self.currentPlayStatus = PlayStatusNoPlay;
     if (self.playStatusBlock) {
@@ -129,10 +137,16 @@
 /// @param vid 视频ID
 - (void)playerWithVid:(NSString *)vid {
     __weak typeof(self) weakSelf = self;
+    if (!vid || vid.length == 0) {
+        [MBProgressHUD showMessage:@"视频ID不能为空！" inView:self.playerView.superview];
+        return;
+    }
     [self getVideoPlayAuthInfoWithVideoId:vid block:^(NSString * _Nonnull playAuth) {
         [weakSelf.playerView stop];
         weakSelf.currentPlayStatus = PlayStatusNoPlay;
-        weakSelf.playStatusBlock(PlayStatusNoPlay, self.playerView);
+        if (weakSelf.playStatusBlock) {
+            weakSelf.playStatusBlock(PlayStatusNoPlay, self.playerView);
+        }
         [weakSelf.playerView seekTo:0];
         [weakSelf playerWithVid:vid playAuth:playAuth];
         weakSelf.currentPlayStatus = PlayStatusPlaying;
@@ -258,21 +272,30 @@
     NSLog(@"isFullScreen : %d, [AliyunUtil isInterfaceOrientationPortrait] = %d",isFullScreen, [AliyunUtil isInterfaceOrientationPortrait]);
     NSLog(@"点击了全屏按钮，本视图：%@，父视图：%@",playerView, playerView.superview);
     static CGRect rect;
-//    static UIView *oldView;
+    static CGRect superRect;
+    static UIView *oldView;
     if ([AliyunUtil isInterfaceOrientationPortrait] && isFullScreen) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             rect = playerView.frame;
-//            oldView = playerView.superview;
-//            UIWindow *window = [UIApplication sharedApplication].keyWindow;
-//            [playerView removeFromSuperview];
-//            [window addSubview:playerView];
+            oldView = playerView.superview;
+            superRect = playerView.superview.frame;
+            UIWindow *window = [UIApplication sharedApplication].keyWindow;
+            [playerView removeFromSuperview];
+            [window addSubview:playerView];
             playerView.frame = [UIScreen mainScreen].bounds;
+            if (self.interfaceOrientationChangeBlock) {
+                self.interfaceOrientationChangeBlock(true);
+            }
         });
     }else if (![AliyunUtil isInterfaceOrientationPortrait] && !isFullScreen) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//            [playerView removeFromSuperview];
-//            [oldView addSubview:playerView];
+            [playerView removeFromSuperview];
+            [oldView addSubview:playerView];
             self.playerView.frame = rect;
+            self.playerView.superview.frame = superRect;
+            if (self.interfaceOrientationChangeBlock) {
+                self.interfaceOrientationChangeBlock(false);
+            }
         });
     }
 }
@@ -706,6 +729,27 @@
     request.BASE_URL = baseUrl;
     request.URL_PATH = path;
     return [self initWithFrame:frame];
+}
+
+#pragma mark ----------------------------- 2020-08-05 ------------------------------
+/// 更新playAuth
+/// @param vid 视频ID
+/// @param block 回调
+- (void)UpdateVideoPlayAuthInfoWithVideoId:(NSString *)vid block:(void(^)(NSString *playAuth))block {
+    [self getVideoPlayAuthInfoWithVideoId:vid block:block];
+}
+
+/// 更新playAuth后直接播放
+/// @param vid 视频ID
+/// @param block 回调
+- (void)UpdateVideoPlayAuthAndPlayingWithVideoId:(NSString *)vid block:(void(^)(NSString *playAuth))block {
+    __weak typeof(self) weakSelf = self;
+    [self getVideoPlayAuthInfoWithVideoId:vid block:^(NSString * _Nonnull playAuth) {
+        if (playAuth && playAuth.length > 0) {
+            [weakSelf playerWithVid:vid playAuth:playAuth];
+            block(playAuth);
+        }
+    }];
 }
 
 @end
