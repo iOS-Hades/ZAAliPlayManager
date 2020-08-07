@@ -45,6 +45,9 @@ typedef NS_ENUM(NSUInteger, DownloadStatus) {
     DownloadStatusFailed,
 };
 
+/// 屏幕旋转通知
+static NSString *InterfaceOrientationNotificationName = @"InterfaceOrientationChange";
+
 /// 播放器管理
 @interface AliPlayManger : NSObject<AliyunVodPlayerViewDelegate, AlivcLongVideoDownLoadProgressManagerDelegate, AlivcLongVideoDefinitionSelectViewDelegate>
 

@@ -274,7 +274,12 @@
     static CGRect rect;
     static CGRect superRect;
     static UIView *oldView;
-    if ([AliyunUtil isInterfaceOrientationPortrait] && isFullScreen) {
+    if (!playerView.superview) {
+        return;
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:InterfaceOrientationNotificationName object:@(isFullScreen)];
+    if (isFullScreen) {
+        [[UIApplication sharedApplication] setStatusBarHidden:true];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             rect = playerView.frame;
             oldView = playerView.superview;
@@ -287,7 +292,8 @@
                 self.interfaceOrientationChangeBlock(true);
             }
         });
-    }else if (![AliyunUtil isInterfaceOrientationPortrait] && !isFullScreen) {
+    }else if (oldView) {
+        [[UIApplication sharedApplication] setStatusBarHidden:false];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [playerView removeFromSuperview];
             [oldView addSubview:playerView];
