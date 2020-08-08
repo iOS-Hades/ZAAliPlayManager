@@ -279,7 +279,9 @@
     }
     [[NSNotificationCenter defaultCenter] postNotificationName:InterfaceOrientationNotificationName object:@(isFullScreen)];
     if (isFullScreen) {
-        [[UIApplication sharedApplication] setStatusBarHidden:true];
+        if ([AliyunUtil isInterfaceOrientationPortrait]) {
+            [AliyunUtil setFullOrHalfScreen];
+        }
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             rect = playerView.frame;
             oldView = playerView.superview;
@@ -293,7 +295,9 @@
             }
         });
     }else if (oldView) {
-        [[UIApplication sharedApplication] setStatusBarHidden:false];
+        if (![AliyunUtil isInterfaceOrientationPortrait]) {
+            [AliyunUtil setFullOrHalfScreen];
+        }
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [playerView removeFromSuperview];
             [oldView addSubview:playerView];
