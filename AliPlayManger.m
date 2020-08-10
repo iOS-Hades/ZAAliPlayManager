@@ -272,17 +272,23 @@
     NSLog(@"isFullScreen : %d, [AliyunUtil isInterfaceOrientationPortrait] = %d",isFullScreen, [AliyunUtil isInterfaceOrientationPortrait]);
     NSLog(@"点击了全屏按钮，本视图：%@，父视图：%@",playerView, playerView.superview);
     static CGRect rect;
-    static CGRect superRect;
+//    static CGRect superRect;
     static UIView *oldView;
     if (!playerView.superview) {
         return;
     }
     [[NSNotificationCenter defaultCenter] postNotificationName:InterfaceOrientationNotificationName object:@(isFullScreen)];
     if (isFullScreen) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if (rect.size.height == 0 && rect.size.width == 0) {
             rect = playerView.frame;
-            oldView = playerView.superview;
-            superRect = playerView.superview.frame;
+        }
+        oldView = playerView.superview;
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//            superRect = playerView.superview.frame;
+            if ([AliyunUtil isInterfaceOrientationPortrait]) {
+                [AliyunUtil setFullOrHalfScreen];
+            }
             UIWindow *window = [UIApplication sharedApplication].keyWindow;
             [playerView removeFromSuperview];
             [window addSubview:playerView];
@@ -292,11 +298,15 @@
             }
         });
     }else if (oldView) {
+        
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (![AliyunUtil isInterfaceOrientationPortrait]) {
+                [AliyunUtil setFullOrHalfScreen];
+            }
             [playerView removeFromSuperview];
             [oldView addSubview:playerView];
             self.playerView.frame = rect;
-            self.playerView.superview.frame = superRect;
+//            self.playerView.superview.frame = superRect;
             if (self.interfaceOrientationChangeBlock) {
                 self.interfaceOrientationChangeBlock(false);
             }
@@ -754,6 +764,15 @@
             block(playAuth);
         }
     }];
+}
+
+/// 播放进度代理
+/// @param playerView 视频控件代理
+/// @param Progress 进度
+- (void)onCurrentWatchProgressChangedWithVodPlayerView:(AlivcLongVideoPlayView *)playerView progress:(NSInteger)Progress {
+    if (self.playProgressBlock) {
+        self.playProgressBlock(Progress);
+    }
 }
 
 @end

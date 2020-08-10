@@ -228,6 +228,10 @@ static NSString *InterfaceOrientationNotificationName = @"InterfaceOrientationCh
 /// 是否是全屏的状态值回调
 @property (nonatomic, copy) void(^interfaceOrientationChangeBlock)(BOOL isFullScreen);
 
+#pragma mark --------------------------------- 2020-08-10 ---------------------------------
+/// 视频播放进度回调
+@property (nonatomic, copy) void(^playProgressBlock)(NSInteger progress);
+
 @end
 
 NS_ASSUME_NONNULL_END
