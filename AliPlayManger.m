@@ -768,7 +768,7 @@
 
 /// 播放进度代理
 /// @param playerView 视频控件代理
-/// @param Progress 进度
+/// @param Progress 进度 取值范围是0-100
 - (void)onCurrentWatchProgressChangedWithVodPlayerView:(AlivcLongVideoPlayView *)playerView progress:(NSInteger)Progress {
     if (self.playProgressBlock) {
         self.playProgressBlock(Progress);
