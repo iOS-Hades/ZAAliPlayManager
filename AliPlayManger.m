@@ -659,7 +659,8 @@
 /// 获取已经下载完成的视频文件地址列表
 - (NSArray <NSString *>*)getDoneDownLoadSource {
     NSMutableArray <NSString *>*arr = [NSMutableArray array];
-    for (AlivcLongVideoDownloadSource *mo in self.downLoadManager.doneSources) {
+    NSLog(@"allReadySourcesWithoutRepeatTv = %@, %@, %@",self.downLoadManager.allReadySourcesWithoutRepeatTv, self.downLoadManager.doneSources, self.downLoadManager.allReadySources);
+    for (AlivcLongVideoDownloadSource *mo in self.downLoadManager.allReadySourcesWithoutRepeatTv) {
         [arr addObject:mo.downloadedFilePath];
     }
     return arr;
