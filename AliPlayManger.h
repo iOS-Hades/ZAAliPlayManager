@@ -250,6 +250,10 @@ static NSString *InterfaceOrientationNotificationName = @"InterfaceOrientationCh
  */
 - (BOOL)deleteFileWithPath:(NSString *)path;
 
+#pragma mark ------------------------------- 2020-08-14 ----------------------------------
+/// 视频播放进度回调 progress取值范围是0-100, time 是当前播放时间
+@property (nonatomic, copy) void(^playProgressAndTimerBlock)(NSInteger progress, NSTimeInterval time);
+
 @end
 
 NS_ASSUME_NONNULL_END

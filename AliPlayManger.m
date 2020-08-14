@@ -458,8 +458,15 @@
         case AliyunSVNetworkStatusReachableViaWiFi: {
             if (vid && auth) {
                 [self goToCacheControllerWithPath:path withVid:vid playAuth:auth];
-            }else{
+            }else if (vid && !auth) {
+                __weak typeof(self) weakSelf = self;
+                [self getVideoPlayAuthInfoWithVideoId:vid block:^(NSString * _Nonnull playAuth) {
+                    [weakSelf goToCacheControllerWithPath:path withVid:vid playAuth:playAuth];
+                }];
+            }else if (self.playerView.authSource.vid && self.playerView.authSource.playAuth) {
                 [self goToCacheControllerWithPath:path withVid:self.playerView.authSource.vid playAuth:self.playerView.authSource.playAuth];
+            }else{
+                NSLog(@"请传入参数vid和auth，否则无法继续下载");
             }
         }
             break;
@@ -505,8 +512,9 @@
     self.currentDownloadSource = currentSource;
     [AVPTool loadingHudToView:self.playerView.superview];
     //15秒超时
+    __weak typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(30 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [AVPTool hideLoadingHudForView:self.playerView.superview];
+        [AVPTool hideLoadingHudForView:weakSelf.playerView.superview];
     });
     
     [self.downLoadManager clearAllPreparedSources];
@@ -776,6 +784,10 @@
 - (void)onCurrentWatchProgressChangedWithVodPlayerView:(AlivcLongVideoPlayView *)playerView progress:(NSInteger)Progress {
     if (self.playProgressBlock) {
         self.playProgressBlock(Progress);
+    }
+    NSTimeInterval time = Progress / 100.0 * playerView.longVideoDuration;
+    if (self.playProgressAndTimerBlock) {
+        self.playProgressAndTimerBlock(Progress, time);
     }
 }
 
