@@ -283,12 +283,12 @@
             rect = playerView.frame;
         }
         oldView = playerView.superview;
-        
+        if ([AliyunUtil isInterfaceOrientationPortrait]) {
+            [AliyunUtil setFullOrHalfScreen];
+        }
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 //            superRect = playerView.superview.frame;
-            if ([AliyunUtil isInterfaceOrientationPortrait]) {
-                [AliyunUtil setFullOrHalfScreen];
-            }
+            
             UIWindow *window = [UIApplication sharedApplication].keyWindow;
             [playerView removeFromSuperview];
             [window addSubview:playerView];
@@ -298,11 +298,10 @@
             }
         });
     }else if (oldView) {
-        
+        if (![AliyunUtil isInterfaceOrientationPortrait]) {
+            [AliyunUtil setFullOrHalfScreen];
+        }
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            if (![AliyunUtil isInterfaceOrientationPortrait]) {
-                [AliyunUtil setFullOrHalfScreen];
-            }
             [playerView removeFromSuperview];
             [oldView addSubview:playerView];
             self.playerView.frame = rect;
