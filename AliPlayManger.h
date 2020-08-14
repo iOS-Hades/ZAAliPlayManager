@@ -232,6 +232,24 @@ static NSString *InterfaceOrientationNotificationName = @"InterfaceOrientationCh
 /// 视频播放进度回调 progress取值范围是0-100
 @property (nonatomic, copy) void(^playProgressBlock)(NSInteger progress);
 
+#pragma mark ---------------------------------- 2020-08-13 --------------------------------
+/// 下载进度回调和下载状态
+/* status的类型值
+    LongVideoDownloadTypeStoped,    //停止
+    LongVideoDownloadTypeWaiting,    //等待
+    LongVideoDownloadTypeLoading, //下载中
+    LongVideoDownloadTypefinish,  //已完成
+    LongVideoDownloadTypePrepared,//准备完成
+    LongVideoDownloadTypeFailed // 下载失败
+*/
+@property (nonatomic, copy) void(^downloadStatusAndProgress)(LongVideoDownloadType status, int progress);
+
+/*
+ 功能：清除指定下载的视频资源
+ 参数：downloadSource 要删除的视频资源
+ */
+- (BOOL)deleteFileWithPath:(NSString *)path;
+
 @end
 
 NS_ASSUME_NONNULL_END

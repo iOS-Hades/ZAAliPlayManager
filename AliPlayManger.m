@@ -541,6 +541,9 @@
     if (self.downloadProgressBlock) {
         self.downloadProgressBlock(percent, self.downLoadProgressManager);
     }
+    if (self.downloadStatusAndProgress) {
+        self.downloadStatusAndProgress(source.downloadStatus, percent);
+    }
 }
 
 - (void)alivcLongVideoDownLoadProgressManagerComplete:(AlivcLongVideoDownloadSource *)source {
@@ -652,6 +655,7 @@
     for (AlivcLongVideoDownloadSource *mo in self.downLoadManager.doneSources) {
         if ([mo.downloadedFilePath isEqualToString:path]) {
             [self.downLoadManager clearMedia:mo];
+            break;
         }
     }
 }
@@ -773,6 +777,20 @@
 - (void)onCurrentWatchProgressChangedWithVodPlayerView:(AlivcLongVideoPlayView *)playerView progress:(NSInteger)Progress {
     if (self.playProgressBlock) {
         self.playProgressBlock(Progress);
+    }
+}
+
+#pragma mark ------------------------- 2020-08-13 删除指定视频资源 ----------------------------
+/*
+ 功能：清除指定下载的视频资源
+ 参数：downloadSource 要删除的视频资源
+ */
+- (BOOL)deleteFileWithPath:(NSString *)path {
+    for (AlivcLongVideoDownloadSource *mo in self.downLoadManager.doneSources) {
+        if ([mo.downloadedFilePath isEqualToString:path]) {
+            [self.downLoadManager clearMedia:mo];
+            return true;
+        }
     }
 }
 
