@@ -318,6 +318,13 @@
     if (![AliyunUtil isInterfaceOrientationPortrait]) {
         [AliyunUtil setFullOrHalfScreen];
         [self aliyunVodPlayerView:playerView fullScreen:NO];
+        if (self.backBlock) {
+            self.backBlock(NO);
+        }
+    }else{
+        if (self.backBlock) {
+            self.backBlock(YES);
+        }
     }
     NSLog(@"屏幕模式：%d",[AliyunUtil isInterfaceOrientationPortrait]);
 }
@@ -505,6 +512,8 @@
     currentSource.longVideoModel = mo;
     if (path && [path isKindOfClass:NSString.class] && path.length > 0) {
         self.downLoadManager.downLoadPath = path;
+    }else{
+        self.downLoadManager.downLoadPath = [NSString stringWithFormat:@"%@/Documents/videos", NSHomeDirectory()];
     }
     currentSource.authSource = [[AVPVidAuthSource alloc] initWithVid:vid playAuth:auth region:@""];
     currentSource.trackIndex = -1;

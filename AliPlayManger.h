@@ -254,6 +254,10 @@ static NSString *InterfaceOrientationNotificationName = @"InterfaceOrientationCh
 /// 视频播放进度回调 progress取值范围是0-100, time 是当前播放时间
 @property (nonatomic, copy) void(^playProgressAndTimerBlock)(NSInteger progress, NSTimeInterval time);
 
+#pragma mark ------------------------------- 2020-08-17 ----------------------------------
+/// 点击了返回按钮的回调
+@property (nonatomic, copy) void(^backBlock)(BOOL isFullScreen);
+
 @end
 
 NS_ASSUME_NONNULL_END
