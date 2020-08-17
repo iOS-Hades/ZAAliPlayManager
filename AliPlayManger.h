@@ -156,7 +156,7 @@ static NSString *InterfaceOrientationNotificationName = @"InterfaceOrientationCh
 /// 准备下载资源
 /// @param vid 资源的videoID 不传值表示下载当前播放的视频
 /// @param auth 资源的鉴权 不传值表示下载当前播放的视频
-/// @param path 资源保存的地址 必传值
+/// @param path 资源保存的地址 不传值表示使用默认保存地址
 - (void)startDownLoad:(NSString *)vid playAuth:(NSString *)auth withPath:(NSString *)path;
 
 /*

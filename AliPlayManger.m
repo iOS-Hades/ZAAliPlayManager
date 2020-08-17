@@ -503,7 +503,7 @@
     mo.videoId = vid;
     AlivcLongVideoDownloadSource *currentSource = [[AlivcLongVideoDownloadSource alloc]init];
     currentSource.longVideoModel = mo;
-    if (path && path.length > 0) {
+    if (path && [path isKindOfClass:NSString.class] && path.length > 0) {
         self.downLoadManager.downLoadPath = path;
     }
     currentSource.authSource = [[AVPVidAuthSource alloc] initWithVid:vid playAuth:auth region:@""];
