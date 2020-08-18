@@ -419,11 +419,14 @@
 /// @param path 视频文件地址
 - (void)playWithLocalSource:(NSString *)path {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.35 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        if ([path containsString:self.downLoadManager.downLoadPath]) {
-            [self.playerView playViewPrepareWithLocalURL:[NSURL fileURLWithPath:path]];
-        }else{
-            [self.playerView playViewPrepareWithLocalURL:[NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@",self.downLoadManager.downLoadPath,path]]];
-        }
+        NSString *paths = [NSString stringWithFormat:@"%@/Documents/videos/%@", NSHomeDirectory(),path];
+        [self.playerView playViewPrepareWithLocalURL:[NSURL fileURLWithPath:paths]];
+//        if ([path containsString:self.downLoadManager.downLoadPath]) {
+//            [self.playerView playViewPrepareWithLocalURL:[NSURL fileURLWithPath:path]];
+//        }else{
+//            [self.playerView playViewPrepareWithLocalURL:[NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@",self.downLoadManager.downLoadPath,path]]];
+//        }
+        
         self.currentPlayStatus = PlayStatusPlaying;
         if (self.playStatusBlock) {
             self.playStatusBlock(PlayStatusPlaying, self.playerView);
@@ -510,11 +513,40 @@
     mo.videoId = vid;
     AlivcLongVideoDownloadSource *currentSource = [[AlivcLongVideoDownloadSource alloc]init];
     currentSource.longVideoModel = mo;
-    if (path && [path isKindOfClass:NSString.class] && path.length > 0) {
-        self.downLoadManager.downLoadPath = path;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+//    if (path && [path isKindOfClass:NSString.class] && path.length > 0) {
+//        BOOL isDir = NO;
+//        // fileExistsAtPath 判断一个文件或目录是否有效，isDirectory判断是否一个目录
+//        BOOL existed = [fileManager fileExistsAtPath:path isDirectory:&isDir];
+//        if ( !(isDir == YES && existed == YES) ) {//如果文件夹不存在
+//            BOOL isCreate = [fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
+//            NSLog(@"1文件夹不存在，正在创建，创建结果是：%d",isCreate);
+//        }else if (!existed) {
+//            BOOL isCreate = [fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
+//            NSLog(@"2文件夹不存在，正在创建，创建结果是：%d",isCreate);
+//        }else{
+//            NSLog(@"3文件夹存在");
+//        }
+//        currentSource.fileName = path;
+//        self.downLoadManager.downLoadPath = path;
+//    }else{
+    // 使用默认地址
+    NSString *paths = [NSString stringWithFormat:@"%@/Documents/videos", NSHomeDirectory()];
+    BOOL isDir = NO;
+    // fileExistsAtPath 判断一个文件或目录是否有效，isDirectory判断是否一个目录
+    BOOL existed = [fileManager fileExistsAtPath:paths isDirectory:&isDir];
+    if ( !(isDir == YES && existed == YES) ) {//如果文件夹不存在
+        BOOL isCreate = [fileManager createDirectoryAtPath:paths withIntermediateDirectories:YES attributes:nil error:nil];
+        NSLog(@"1文件夹不存在，正在创建，创建结果是：%d",isCreate);
+    }else if (!existed) {
+        BOOL isCreate = [fileManager createDirectoryAtPath:paths withIntermediateDirectories:YES attributes:nil error:nil];
+        NSLog(@"2文件夹不存在，正在创建，创建结果是：%d",isCreate);
     }else{
-        self.downLoadManager.downLoadPath = [NSString stringWithFormat:@"%@/Documents/videos", NSHomeDirectory()];
+        NSLog(@"3文件夹存在");
     }
+    currentSource.fileName = paths;
+    self.downLoadManager.downLoadPath = paths;
+//    }
     currentSource.authSource = [[AVPVidAuthSource alloc] initWithVid:vid playAuth:auth region:@""];
     currentSource.trackIndex = -1;
     currentSource.downloadSourceType = DownloadSourceTypeAuth;
@@ -628,7 +660,7 @@
     CGFloat mSize =  info.vodFileSize /1024.0 /1024.0;
     NSString *mString = [NSString stringWithFormat:@"%.1fM",mSize];
     self.currentDownloadSource.totalDataString = mString;
-    
+    hasSource.fileName = self.downLoadManager.downLoadPath;
     [self.downLoadManager addDownloadSource:self.currentDownloadSource];
     [self.downLoadManager startDownloadSource:self.currentDownloadSource];
     
@@ -668,7 +700,7 @@
  参数：downloadSource 要删除的视频资源
  */
 - (void)deleteFile:(NSString *)path {
-    for (AlivcLongVideoDownloadSource *mo in self.downLoadManager.doneSources) {
+    for (AlivcLongVideoDownloadSource *mo in self.downLoadManager.allReadySourcesWithoutRepeatTv) {
         if ([mo.downloadedFilePath isEqualToString:path]) {
             [self.downLoadManager clearMedia:mo];
             break;
@@ -679,9 +711,16 @@
 /// 获取已经下载完成的视频文件地址列表
 - (NSArray <NSString *>*)getDoneDownLoadSource {
     NSMutableArray <NSString *>*arr = [NSMutableArray array];
+    for (AlivcLongVideoDownloadSource *mo in self.downLoadManager.allReadySourcesWithoutRepeatTv) {
+        NSLog(@"path1 = %@",mo.downloadedFilePath);
+    }
+    for (AlivcLongVideoDownloadSource *mo in self.downLoadManager.doneSources) {
+        NSLog(@"path2 = %@",mo.downloadedFilePath);
+    }
     NSLog(@"allReadySourcesWithoutRepeatTv = %@, %@, %@",self.downLoadManager.allReadySourcesWithoutRepeatTv, self.downLoadManager.doneSources, self.downLoadManager.allReadySources);
     for (AlivcLongVideoDownloadSource *mo in self.downLoadManager.allReadySourcesWithoutRepeatTv) {
         [arr addObject:mo.downloadedFilePath];
+        NSLog(@"path3 = %@",mo.downloadedFilePath);
     }
     return arr;
 }
