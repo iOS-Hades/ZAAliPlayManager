@@ -318,15 +318,14 @@
     if (![AliyunUtil isInterfaceOrientationPortrait]) {
         [AliyunUtil setFullOrHalfScreen];
         [self aliyunVodPlayerView:playerView fullScreen:NO];
-        if (self.backBlock) {
-            self.backBlock(NO);
-        }
-    }else{
-        if (self.backBlock) {
-            self.backBlock(YES);
-        }
     }
-    NSLog(@"屏幕模式：%d",[AliyunUtil isInterfaceOrientationPortrait]);
+    __weak typeof(self) weakSelf = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if (weakSelf.backBlock) {
+            weakSelf.backBlock([AliyunUtil isInterfaceOrientationPortrait]);
+        }
+    });
+    NSLog(@"点击了返回按钮，屏幕模式：%d",[AliyunUtil isInterfaceOrientationPortrait]);
 }
 
 /// 开始播放
