@@ -1,0 +1,35 @@
+/* 
+  Localizable.strings
+  AliPlayTest
+
+  Created by 刘家伟 on 2020/8/27.
+  Copyright © 2020 刘家伟. All rights reserved.
+*/
+
+"loading" = "加载中";
+
+"center" = "中心";
+"progress" = "进度";
+"control" = "调节";
+"left" = "向左";
+"brightness" = "亮度";
+"right" = "向右";
+"volume" = "音量";
+
+"Retry" = "重试";
+"Play" = "播放";
+"Replay" = "重播";
+
+"Watch again, please click replay" = "再次观看，请点击重播";
+"The current network is not good. Please click replay later" = "当前的网络不好。 请稍后重播";
+"No network connection, check the network, click replay" = "没有网络连接，检查网络，单击重播";
+"Video loading error, please click replay" = "视频加载错误，请点击重播";
+"For mobile networks, click play" = "当前是移动网络，请点击播放";
+
+"VOD_FD" = "流畅";
+"VOD_LD" = "标清";
+"VOD_SD" = "高清";
+"VOD_HD" = "超清";
+"VOD_2K" = "2K";
+"VOD_4K" = "4K";
+"VOD_OD" = "OD";

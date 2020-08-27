@@ -315,17 +315,15 @@
 
 // TODO: 返回按钮事件代理
 - (void)onBackViewClickWithAliyunVodPlayerView:(nonnull AlivcLongVideoPlayView *)playerView {
+    __weak typeof(self) weakSelf = self;
+    if (weakSelf.backBlock) {
+        weakSelf.backBlock(![AliyunUtil isInterfaceOrientationPortrait]);
+        NSLog(@"点击了返回按钮，屏幕模式：%@,值是：%d",([AliyunUtil isInterfaceOrientationPortrait] ? @"竖屏" : @"横屏"), ![AliyunUtil isInterfaceOrientationPortrait]);
+    }
     if (![AliyunUtil isInterfaceOrientationPortrait]) {
         [AliyunUtil setFullOrHalfScreen];
         [self aliyunVodPlayerView:playerView fullScreen:NO];
     }
-    __weak typeof(self) weakSelf = self;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        if (weakSelf.backBlock) {
-            weakSelf.backBlock([AliyunUtil isInterfaceOrientationPortrait]);
-        }
-    });
-    NSLog(@"点击了返回按钮，屏幕模式：%d",[AliyunUtil isInterfaceOrientationPortrait]);
 }
 
 /// 开始播放

@@ -1,0 +1,35 @@
+/* 
+  Localizable.strings
+  AliPlayTest
+
+  Created by 刘家伟 on 2020/8/27.
+  Copyright © 2020 刘家伟. All rights reserved.
+*/
+
+"loading" = "loading";
+
+"center" = "center";
+"progress" = "progress";
+"control" = "control";
+"left" = "left";
+"brightness" = "brightness";
+"right" = "right";
+"volume" = "volume";
+
+"Retry" = "Retry";
+"Play" = "Play";
+"Replay" = "Replay";
+
+"Watch again, please click replay" = "Watch again, please click replay";
+"The current network is not good. Please click replay later" = "The current network is not good. Please click replay later";
+"No network connection, check the network, click replay" = "No network connection, check the network, click replay";
+"Video loading error, please click replay" = "Video loading error, please click replay";
+"For mobile networks, click play" = "For mobile networks, click play";
+
+"VOD_FD" = "VOD_FD";
+"VOD_LD" = "VOD_LD";
+"VOD_SD" = "VOD_SD";
+"VOD_HD" = "VOD_HD";
+"VOD_2K" = "VOD_2K";
+"VOD_4K" = "VOD_4K";
+"VOD_OD" = "VOD_OD";
