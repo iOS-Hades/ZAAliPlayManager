@@ -572,7 +572,8 @@
     [AVPTool hideLoadingHudForView:self.playerView.superview];
     
     if (!self.definitionSelectView.superview) {
-        [self.playerView.window addSubview:self.definitionSelectView];
+        UIWindow *window = [[UIApplication sharedApplication] keyWindow];
+        [window addSubview:self.definitionSelectView];
     }
     self.definitionSelectView.trackInfoArray = mediaInfo.tracks;
     [UIView animateWithDuration:0.2 animations:^{
